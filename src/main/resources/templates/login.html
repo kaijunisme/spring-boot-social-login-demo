@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+	<title>Insert title here</title>
+</head>
+<body>
+	<div class="g-signin2" 
+		 data-width="240" 
+		 data-height="50" 
+		 data-longtitle="true"
+		 data-theme="dark" 
+		 data-onsuccess="onSuccess"
+		 data-onfailure="onFailure"></div>
+	<a href="#" onclick="signOut();">Sign out</a>
+	
+	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<script>
+    	// 登入成功後要觸發的function
+		function onSuccess(googleUser) {
+			var profile = googleUser.getBasicProfile();
+			console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+			console.log('Name: ' + profile.getName());
+			console.log('Image URL: ' + profile.getImageUrl());
+			console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+		}
+		
+    	// 登入失敗時要觸發的function
+		function onFailure(error) {
+			console.log(error);
+		}
+		
+    	// 登出時要觸發的function
+		function signOut() {
+			var auth2 = gapi.auth2.getAuthInstance();
+			auth2.signOut().then(function () {
+				console.log('User signed out.');
+			});
+		}
+	</script>
+</body>
+</html>
