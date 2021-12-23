@@ -6,17 +6,25 @@
 	<title>Insert title here</title>
 </head>
 <body>
-	<div class="g-signin2" 
-		 data-width="240" 
-		 data-height="50" 
-		 data-longtitle="true"
-		 data-theme="dark" 
-		 data-onsuccess="onSuccess"
-		 data-onfailure="onFailure"></div>
+	<div id="googleSignIn"></div>
 	<a href="#" onclick="signOut();">Sign out</a>
 	
-	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<!-- 引入JS 時先帶入參數，onload 指定platform.js 載入完後執行哪個function -->
+	<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 	<script>
+		// 載入platform.js 完成後，要執行的便是指定渲染登入按鈕的區塊
+		function renderButton() {
+			gapi.signin2.render("googleSignIn", {
+				"scope": "profile email",
+				"width": 240,
+				"height": 50,
+				"longtitle": true,
+				"theme": "dark",
+				"onsuccess": onSuccess,
+				"onfailure": onFailure
+			});
+		}
+
     	// 登入成功後要觸發的function
 		function onSuccess(googleUser) {
 			var profile = googleUser.getBasicProfile();
