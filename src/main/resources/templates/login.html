@@ -1,31 +1,80 @@
-<!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
-	<title>Insert title here</title>
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+	<style type="text/css">
+		#customBtn {
+			display: inline-block;
+			background: white;
+			color: #444;
+			width: 190px;
+			border-radius: 5px;
+			border: thin solid #888;
+			box-shadow: 1px 1px 1px grey;
+			white-space: nowrap;
+		}
+		#customBtn:hover {
+			cursor: pointer;
+		}
+		span.label {
+			font-family: serif;
+			font-weight: normal;
+		}
+		span.icon {
+			background: url('/identity/sign-in/g-normal.png') transparent 5px 50% no-repeat;
+			display: inline-block;
+			vertical-align: middle;
+			width: 42px;
+			height: 42px;
+		}
+		span.buttonText {
+			display: inline-block;
+			vertical-align: middle;
+			padding-left: 42px;
+			padding-right: 42px;
+			font-size: 14px;
+			font-weight: bold;
+			/* Use the Roboto font that is loaded in the <head> */
+			font-family: 'Roboto', sans-serif;
+		}
+	</style>
 </head>
 <body>
-	<div id="googleSignIn"></div>
+	<!-- In the callback, you would hide the gSignInWrapper element on a successful sign in -->
+	<div id="gSignInWrapper">
+		<span class="label">Sign in with:</span>
+		<div id="customBtn" class="customGPlusSignIn">
+			<span class="icon"></span>
+			<span class="buttonText">Google 登入</span>
+		</div>
+	</div>
 	<a href="#" onclick="signOut();">Sign out</a>
-	
-	<!-- 引入JS 時先帶入參數，onload 指定platform.js 載入完後執行哪個function -->
-	<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+	<script src="https://apis.google.com/js/api:client.js" onload="onloadCallback()" async defer></script>
 	<script>
-		// 載入platform.js 完成後，要執行的便是指定渲染登入按鈕的區塊
-		function renderButton() {
-			gapi.signin2.render("googleSignIn", {
-				"scope": "profile email",
-				"width": 240,
-				"height": 50,
-				"longtitle": true,
-				"theme": "dark",
-				"onsuccess": onSuccess,
-				"onfailure": onFailure
+		var googleUser = {};
+		
+		function onloadCallback() {
+			gapi.load('auth2', function(){
+				// Retrieve the singleton for the GoogleAuth library and set up the client.
+				auth2 = gapi.auth2.init({
+					client_id: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
+					cookiepolicy: 'single_host_origin',
+					// Request scopes in addition to 'profile' and 'email'
+					//scope: 'additional_scope'
+				});
+				auth2.then(function(authInstance) {
+					if(authInstance.isSignedIn.get()) {
+						var profile = authInstance.currentUser.get().getBasicProfile();
+						console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+						console.log('Name: ' + profile.getName());
+						console.log('Image URL: ' + profile.getImageUrl());
+						console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+					}
+				});
+				auth2.attachClickHandler(document.getElementById('customBtn'), {}, onSuccess, onFailure);
 			});
-		}
-
-    	// 登入成功後要觸發的function
+		};
+		
+	   	// 登入成功後要觸發的function
 		function onSuccess(googleUser) {
 			var profile = googleUser.getBasicProfile();
 			console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
@@ -34,11 +83,12 @@
 			console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
 		}
 		
-    	// 登入失敗時要觸發的function
+	   	// 登入失敗時要觸發的function
 		function onFailure(error) {
 			console.log(error);
+			alert(JSON.stringify(error, undefined, 2));
 		}
-		
+	
     	// 登出時要觸發的function
 		function signOut() {
 			var auth2 = gapi.auth2.getAuthInstance();
